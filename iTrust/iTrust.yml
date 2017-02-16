@@ -71,11 +71,6 @@
       become: yes
       become_method: sudo
 
-    - name: Start Tomcat
-      shell: sh /opt/tomcat9/bin/startup.sh
-      become: yes
-      become_method: sudo
-
     - name: Clone the iTrust repository
       shell: git clone https://github.com/deepakiam/iTrust-v23.git
 
@@ -87,10 +82,17 @@
       become: yes
       become_method: sudo
 
-    - name: Start Tomcat
-      shell: sh /opt/tomcat9/bin/startup.sh
+    - name: Shutdown Tomcat
+      shell: nohup sh /opt/tomcat9/bin/shutdown.sh
       become: yes
       become_method: sudo
+
+	- name: Start Tomcat
+      shell: nohup sh /opt/tomcat9/bin/startup.sh
+      become: yes
+      become_method: sudo
+	  register: tomcat
+	- debug: var=tomcat.stdout_lines
 
     # emit a debug message with each package
     - debug:
