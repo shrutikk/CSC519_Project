@@ -1,5 +1,11 @@
 # CSC519_Project
 
+__Team Members__:           __UnityID:__
+* Shruti Kuber                skuber
+* Phaniprakash Jayanthi       pjayant
+* Deepak Nair                 dnair
+* Raunaq Saxena               rsaxena
+
 ## Screencast
 
 [Link to Screencast for Checkbox.io](https://youtu.be/OCA_n2SMaW8)
