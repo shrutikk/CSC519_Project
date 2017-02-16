@@ -1,10 +1,11 @@
 # CSC519_Project
 
-__Team Members__:           __UnityID:__
-* Shruti Kuber                skuber
-* Phaniprakash Jayanthi       pjayant
-* Deepak Nair                 dnair
-* Raunaq Saxena              rsaxena
+|__Team Members__:       |    __UnityID:__ |
+-------------------------|-----------------|
+|  Shruti Kuber          |       skuber    |
+|  Phaniprakash Jayanthi |       pjayant   |
+|  Deepak Nair           |       dnair     |
+|  Raunaq Saxena         |      rsaxena    |
 
 ## Screencast
 
