@@ -1,11 +1,11 @@
 # CSC519_Project
 
-|__Team Members__       |    __UnityID__ |
--------------------------|-----------------|
-|  Shruti Kuber          |       skuber    |
-|  Phaniprakash Jayanthi |       pjayant   |
-|  Deepak Nair           |       dnair     |
-|  Raunaq Saxena         |      rsaxena    |
+|__Team Members__        |    __UnityID__  |   __Contribution__  |
+-------------------------|-----------------|---------------------|
+|  Shruti Kuber          |       skuber    |     checkbox.io     |
+|  Phaniprakash Jayanthi |       pjayant   |       iTrust        |
+|  Deepak Nair           |       dnair     |     checkbox.io     |
+|  Raunaq Saxena         |      rsaxena    |       iTrust        |
 
 ## Screencast
 
