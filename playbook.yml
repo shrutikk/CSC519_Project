@@ -15,26 +15,29 @@
 
    - name: Install Nodejs
      apt: pkg=nodejs
-   
+
+   - name: Create node link
+     command: ln -s /usr/bin/nodejs /usr/bin/node creates=/usr/bin/node
+
    - name: Install git
      apt: pkg=git
-   
+
    - name: Install npm
      apt: pkg=npm
-   
+
    - name: Install mongo step1
      raw: sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
 
    - name: Install mongo step2
      raw: echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
 
-   - name: UPdate
+   - name: Update
      raw: sudo apt-get update
 
-   - name: Install
+   - name: Install mongodb
      apt: pkg=mongodb-org
-   
-   - name: Clone repository JSPDemo
+
+   - name: Clone repository Checkbox.io
      git: repo=https://github.com/shrutikk/checkbox.io.git dest=/home/ubuntu/checkbox.io/
 
    - name: NPM install
@@ -45,10 +48,15 @@
 
    - name: Overwrite nginx default
      raw: sudo cp /home/ubuntu/checkbox.io/local-conf/default /etc/nginx/sites-available/
-  
+
    - name: Restart nginx
      raw: sudo service nginx restart
-   
+
    - name: Start Mongo
      raw: sudo service mongod start 
 
+   - name: "Install forever (to run Node.js app)."
+     npm: name=forever global=yes state=latest
+  
+   - name: Start API server
+     command: chdir=/home/ubuntu/checkbox.io/server-side/site/ forever start server.js
