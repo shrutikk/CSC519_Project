@@ -1,5 +1,8 @@
 # CSC519_Project
 
+## Screencast
+
+[Link to Screencast for Checkbox.io](https://youtu.be/OCA_n2SMaW8)
 
 ## Report
   
