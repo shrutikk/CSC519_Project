@@ -1,6 +1,6 @@
 # CSC519_Project
 
-|__Team Members__:       |    __UnityID:__ |
+|__Team Members__       |    __UnityID__ |
 -------------------------|-----------------|
 |  Shruti Kuber          |       skuber    |
 |  Phaniprakash Jayanthi |       pjayant   |
