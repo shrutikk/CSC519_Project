@@ -4,7 +4,7 @@ __Team Members__:           __UnityID:__
 * Shruti Kuber                skuber
 * Phaniprakash Jayanthi       pjayant
 * Deepak Nair                 dnair
-* Raunaq Saxena               rsaxena
+* Raunaq Saxena              rsaxena
 
 ## Screencast
 
