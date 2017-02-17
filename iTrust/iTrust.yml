@@ -87,16 +87,9 @@
       become: yes
       become_method: sudo
 
-	- name: Start Tomcat
+    - name: Start Tomcat
       shell: nohup sh /opt/tomcat9/bin/startup.sh
       become: yes
       become_method: sudo
-	  register: tomcat
-	- debug: var=tomcat.stdout_lines
-
-    # emit a debug message with each package
-    - debug:
-        msg: "{{ item }}"
-      with_items: "{{packages}}"
-
-    # Combine the two commands to install a list of packages
+      register: tomcat
+    - debug: var=tomcat.stdout_lines
