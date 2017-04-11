@@ -57,6 +57,3 @@
 
    - name: Restart nginx
      raw: sudo service nginx restart
-
-   - name: Start Mongo
-     raw: sudo service mongod start 
