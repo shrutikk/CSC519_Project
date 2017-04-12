@@ -1,0 +1,27 @@
+- hosts: proxy
+  sudo: yes
+  gather_facts: false
+
+  pre_tasks:
+   - name: Install python
+     raw: sudo apt-get install -y python-simplejson
+   
+   - name: Update
+     raw: apt-get update
+
+  tasks:
+   
+   - name: Install Nodejs
+     apt: pkg=nodejs
+
+   - name: Create node link
+     command: ln -s /usr/bin/nodejs /usr/bin/node creates=/usr/bin/node
+
+   - name: Install git
+     apt: pkg=git
+
+   - name: Install npm
+     apt: pkg=npm
+
+   - name: Clone repository Checkbox.io
+     git: repo=https://github.com/shrutikk/checkbox.io.git dest=/home/ubuntu/checkbox.io/
