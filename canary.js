@@ -3,10 +3,10 @@ var httpProxy = require('http-proxy');
 var exec = require('child_process').exec;
 var request = require("request");
 
-var GREEN = 'http://127.0.0.1:5060';
+var CHECKBOX  = 'http://34.209.184.165:80';
 var BLUE  = 'http://127.0.0.1:9090';
 
-var TARGET = BLUE;
+var TARGET = CHECKBOX;
 var requestNum = 1;
 var infrastructure =
 {
@@ -17,20 +17,7 @@ var infrastructure =
     var proxy   = httpProxy.createProxyServer(options);
     var server  = http.createServer(function(req, res)
     {
-      if(requestNum % 3 == 0){
-         res.writeHead(302, {
-            'Location': 'http://54.70.2.180:80/'
-         });
-         res.end();
-         // res.redirect("http://34.208.96.148:80/");
-      }else{
-        // res.redirect("http://34.208.96.148:80/");
-         res.writeHead(302, {
-            'Location': 'http://35.161.218.221:80/'
-         });
-         res.end();
-      }
-      requestNum++;
+         proxy.web( req, res, {target: TARGET } );
     });
     server.listen(8080);
 
