@@ -1,0 +1,104 @@
+---
+- hosts: nodes
+
+  vars:
+    packages:
+      - gcc
+      - git
+      - git-core
+      - oracle-java8-installer
+      - oracle-java8-set-default
+      - maven
+      - mysql-server
+      - python-software-properties
+
+  tasks:
+    - name: Download key for Oracle Java 8
+      shell: sudo add-apt-repository -y ppa:webupd8team/java; echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections; echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+      become: yes
+      become_method: sudo
+
+    - name: Updating apt-get cache
+      apt:
+        update_cache: yes
+      become: yes
+      become_method: sudo
+
+    - name: Install Required packages
+      apt: name="{{item}}" state=present
+      with_items: "{{ packages}}"
+      become: yes
+      become_method: sudo
+
+    - name: Updating apt-get cache again
+      apt:
+        update_cache: yes
+      become: yes
+      become_method: sudo
+
+    - name: Install Tomcat 9
+      shell: cd /opt; wget http://www-us.apache.org/dist/tomcat/tomcat-9/v9.0.0.M19/bin/apache-tomcat-9.0.0.M19.tar.gz; tar xzf apache-tomcat-9.0.0.M19.tar.gz; mv apache-tomcat-9.0.0.M19 tomcat9
+      become: yes
+      become_method: sudo
+      args:
+        creates: /opt/tomcat9
+
+    - name: Export Environment Variables
+      shell: echo "export CATALINA_HOME="/opt/tomcat9"" >> ~/.profile; echo "export JAVA_HOME="/usr/lib/jvm/java-8-oracle"" >> ~/.profile; echo "export JRE_HOME="/usr/lib/jvm/java-8-oracle/jre"" >> ~/.profile
+
+    - name: Copy MySQL Configuration file
+      copy:
+        src: /var/lib/jenkins/workspace/master/my.cnf
+        dest: /etc/mysql/my.cnf
+        owner: root
+        group: root
+        mode: 0500
+      become: yes
+      become_method: sudo
+
+    - name: Copy Tomcat Configuration file
+      copy:
+        src: /var/lib/jenkins/workspace/master/tomcat-users.xml
+        dest: /opt/tomcat9/conf/tomcat-users.xml
+        owner: root
+        group: root
+        mode: 0500
+      become: yes
+      become_method: sudo
+
+    - name: Restart MySQL Server
+      service:
+        name: mysql
+        state: restarted
+      become: yes
+      become_method: sudo
+
+    - name: CLeanup repo
+      shell: rm -rf /home/{{ansible_ssh_user}}/iTrust
+      become: yes
+      become_method: sudo
+
+    - name: Clone the iTrust repository
+      shell: git clone https://github.com/deepakiam/iTrust-v23.git /home/{{ansible_ssh_user}}/iTrust/iTrust-v23/
+
+    - name: Package the project
+      shell: cd /home/{{ansible_ssh_user}}/iTrust/iTrust-v23/; mvn clean package
+
+    - name: copy the war to deployment folder
+      shell: cp /home/{{ansible_ssh_user}}/iTrust/iTrust-v23/target/iTrust-23.0.0.war /opt/tomcat9/webapps/iTrust.war
+      become: yes
+      become_method: sudo
+
+    - name: Shutdown Tomcat
+      shell: nohup sh /opt/tomcat9/bin/shutdown.sh
+      become: yes
+      become_method: sudo
+
+    - name: Start Tomcat
+      shell: nohup sh /opt/tomcat9/bin/startup.sh
+      become: yes
+      become_method: sudo
+      register: tomcat
+
+    - debug: var=tomcat.stdout_lines
+

@@ -1,0 +1,136 @@
+---
+- hosts: vcl1
+
+  vars:
+    packages:
+      - gcc
+      - git
+      - git-core
+      - oracle-java8-installer
+      - oracle-java8-set-default
+      - maven
+      - mysql-server
+      - python-software-properties
+      - make
+      - vim
+      - python-dev
+      - python-pip
+      - libssl-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - libjpeg8-dev
+      - zlib1g-dev
+
+  tasks:
+    - name: Download key for Oracle Java 8
+      shell: sudo add-apt-repository -y ppa:webupd8team/java; echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections; echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+      become: yes
+      become_method: sudo
+
+    - name: Download Jenkins Key
+      shell: wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
+
+    - name: Create Files for Jenkins
+      shell: sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+
+    - name: Updating apt-get cache
+      apt:
+        update_cache: yes
+      become: yes
+      become_method: sudo
+
+    - name: Install Required packages
+      apt: name="{{item}}" state=present
+      with_items: "{{ packages}}"
+      become: yes
+      become_method: sudo
+
+    - name: Install Ansible
+      shell: pip install ansible==2.2.0; pip install -U pip setuptools>=11.3; pip install dopy==0.3.5
+      become: yes
+      become_method: sudo
+
+    - name: Updating apt-get cache again
+      apt:
+        update_cache: yes
+      become: yes
+      become_method: sudo
+
+    - name: Installing Jenkins only
+      apt: name="jenkins" state=present
+      become: yes
+      become_method: sudo
+
+    - name: Configure Jenkins
+      shell: mkdir -p /var/lib/jenkins/jobs/master/builds; echo 1 > /var/lib/jenkins/jobs/master/nextBuildNumber; mkdir -p /var/lib/jenkins/workspace/master; chown jenkins -R /var/lib/jenkins/; mkdir -p /var/lib/jenkins/workspace/Checkbox; mkdir -p /var/lib/jenkins/workspace/Checkbox-canary; mkdir -p /var/lib/jenkins/workspace/iTrust;
+      become: yes
+      become_method: sudo
+
+    - copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: jenkins
+        group: jenkins
+        mode: 0777
+      become: yes
+      become_method: sudo
+      with_items:
+        - { src: '/home/vagrant/jenkins.xml', dest: '/var/lib/jenkins/config.xml' }
+        - { src: '/home/vagrant/iTrust.yml', dest: '/var/lib/jenkins/workspace/master/iTrust.yml'  }
+        - { src: '/home/vagrant/my.cnf', dest: '/var/lib/jenkins/workspace/master/my.cnf' }
+        - { src: '/home/vagrant/tomcat-users.xml', dest: '/var/lib/jenkins/workspace/master/tomcat-users.xml' }
+        - { src: '/home/vagrant/job.xml', dest: '/var/lib/jenkins/jobs/master/config.xml' }
+        - { src: '/home/vagrant/checkbox_setup.yml', dest: '/var/lib/jenkins/workspace/master/checkbox_setup.yml' }
+        - { src: '/home/vagrant/checkbox-canary_setup.yml', dest: '/var/lib/jenkins/workspace/master/checkbox-canary_setup.yml' }
+        - { src: '/home/vagrant/iTrust.yml', dest: '/var/lib/jenkins/workspace/iTrust/iTrust.yml'  }
+        - { src: '/home/vagrant/my.cnf', dest: '/var/lib/jenkins/workspace/iTrust/my.cnf' }
+        - { src: '/home/vagrant/tomcat-users.xml', dest: '/var/lib/jenkins/workspace/iTrust/tomcat-users.xml' }
+        - { src: '/home/vagrant/job.xml', dest: '/var/lib/jenkins/jobs/iTrust/config.xml' }
+        - { src: '/home/vagrant/checkbox_setup.yml', dest: '/var/lib/jenkins/workspace/Checkbox/checkbox_setup.yml' }
+        - { src: '/home/vagrant/checkbox-canary_setup.yml', dest: '/var/lib/jenkins/workspace/Checkbox-canary/checkbox-canary_setup.yml' }
+        - { src: '/home/vagrant/inventory', dest: '/var/lib/jenkins/workspace/iTrust/inventory' }
+        - { src: '/home/vagrant/inventory', dest: '/var/lib/jenkins/workspace/Checkbox/inventory' }
+        - { src: '/home/vagrant/inventory', dest: '/var/lib/jenkins/workspace/Checkbox-canary/inventory' }
+
+    - copy:
+        src: /home/vagrant/checkbox-canary.xml
+        dest: /home/{{ansible_ssh_user}}/checkbox-canary.xml
+
+    - copy:
+        src: /home/vagrant/checkbox.xml
+        dest: /home/{{ansible_ssh_user}}/checkbox.xml
+
+    - shell: chown -R jenkins /var/lib/jenkins/workspace/
+      become: yes
+      become_method: sudo
+
+    - name: Restart Jenkins
+      shell: service jenkins restart
+      become: yes
+      become_method: sudo
+
+    - wait_for:
+        timeout: 20
+
+    - name: Download jenkins-cli jar
+      shell: cd /var/lib/jenkins/; wget localhost:8080/jnlpJars/jenkins-cli.jar; chown jenkins /var/lib/jenkins/jenkins-cli.jar; chmod 777 /var/lib/jenkins/jenkins-cli.jar
+      become: yes
+      become_method: sudo
+
+    - name: Create job iTrust
+      shell: java -jar /var/lib/jenkins/jenkins-cli.jar -s http://{{ansible_ssh_host}}:8080/ create-job iTrust < /home/{{ansible_ssh_user}}/iTrust.xml
+      ignore_errors: yes
+
+    - name: Create job Checkbox
+      shell: java -jar /var/lib/jenkins/jenkins-cli.jar -s http://{{ansible_ssh_host}}:8080/ create-job Checkbox < /home/{{ansible_ssh_user}}/checkbox.xml
+      ignore_errors: yes
+
+    - name: Create job Checkbox Canary
+      shell: java -jar /var/lib/jenkins/jenkins-cli.jar -s http://{{ansible_ssh_host}}:8080/ create-job Checkbox-canary < /home/{{ansible_ssh_user}}/checkbox-canary.xml
+      ignore_errors: yes
+
+    - name: Run main job
+      shell: java -jar /var/lib/jenkins/jenkins-cli.jar -s http://{{ansible_ssh_host}}:8080/ build master
+
+    - debug: var=tomcat.stdout_lines
+
