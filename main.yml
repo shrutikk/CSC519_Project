@@ -85,9 +85,9 @@
         - { src: '/home/vagrant/iTrust.yml', dest: '/var/lib/jenkins/workspace/iTrust/iTrust.yml'  }
         - { src: '/home/vagrant/my.cnf', dest: '/var/lib/jenkins/workspace/iTrust/my.cnf' }
         - { src: '/home/vagrant/tomcat-users.xml', dest: '/var/lib/jenkins/workspace/iTrust/tomcat-users.xml' }
-        - { src: '/home/vagrant/job.xml', dest: '/var/lib/jenkins/jobs/iTrust/config.xml' }
         - { src: '/home/vagrant/checkbox_setup.yml', dest: '/var/lib/jenkins/workspace/Checkbox/checkbox_setup.yml' }
         - { src: '/home/vagrant/checkbox-canary_setup.yml', dest: '/var/lib/jenkins/workspace/Checkbox-canary/checkbox-canary_setup.yml' }
+        - { src: '/home/vagrant/inventory', dest: '/var/lib/jenkins/workspace/master/inventory' }
         - { src: '/home/vagrant/inventory', dest: '/var/lib/jenkins/workspace/iTrust/inventory' }
         - { src: '/home/vagrant/inventory', dest: '/var/lib/jenkins/workspace/Checkbox/inventory' }
         - { src: '/home/vagrant/inventory', dest: '/var/lib/jenkins/workspace/Checkbox-canary/inventory' }
@@ -99,6 +99,10 @@
     - copy:
         src: /home/vagrant/checkbox.xml
         dest: /home/{{ansible_ssh_user}}/checkbox.xml
+
+    - copy:
+        src: /home/vagrant/iTrust.xml
+        dest: /home/{{ansible_ssh_user}}/iTrust.xml
 
     - shell: chown -R jenkins /var/lib/jenkins/workspace/
       become: yes
