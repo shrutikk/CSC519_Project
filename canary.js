@@ -1,3 +1,5 @@
+var redis = require('redis');
+var client = redis.createClient(6379, '127.0.0.1', {}) ;
 var http      = require('http');
 var httpProxy = require('http-proxy');
 var exec = require('child_process').exec;
@@ -5,8 +7,25 @@ var request = require("request");
 
 var CHECKBOX  = 'http://34.209.184.165:80';
 
-var TARGET = CHECKBOX;
+var PROD1 = 'http://34.209.201.231:80/';
+var PROD2 = 'http://52.41.64.213:80/';
+// var PROD3 = 'http://34.209.32.244:80/';
+
+var CANARY = 'http://34.209.32.244:80/'; 
+
+var TARGET = PROD1;
 var requestNum = 1;
+
+client.flushdb( function (err, succeeded) {
+
+});
+
+client.lpush("prodservers",PROD1);
+client.lpush("prodservers",PROD2);
+// client.lpush("prodservers",PROD3);
+
+client.lpush("canaryservers", CANARY);
+
 var infrastructure =
 {
   setup: function()
@@ -15,8 +34,21 @@ var infrastructure =
     var options = {};
     var proxy   = httpProxy.createProxyServer(options);
     var server  = http.createServer(function(req, res)
-    {
-         proxy.web( req, res, {target: TARGET } );
+    { 
+         if (requestNum % 3 != 0){
+            client.rpoplpush("prodservers","prodservers",function(err, value){
+               console.log("\nProxy server sending request to port " + value );
+               TARGET = value;
+               proxy.web(req, res, { target: TARGET });
+            });
+         }else {
+            client.rpoplpush("canaryservers","canaryservers",function(err, value){
+               console.log("\nCanary server sending request to port " + value );
+               TARGET = value;
+               proxy.web(req, res, { target: TARGET });
+            });
+         }
+         requestNum++;
     });
     server.listen(8080);
 
