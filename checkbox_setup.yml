@@ -1,4 +1,4 @@
-- hosts: production
+- hosts: Checkbox
   sudo: yes
   gather_facts: false
 
