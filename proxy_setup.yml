@@ -11,17 +11,20 @@
 
   tasks:
    
-   # - name: Install Nodejs
-   #   apt: pkg=nodejs
-   #
-   # - name: Create node link
-   #   command: ln -s /usr/bin/nodejs /usr/bin/node creates=/usr/bin/node
-   #
-   # - name: Install git
-   #   apt: pkg=git
-   #
-   # - name: Install npm
-   #   apt: pkg=npm
-   #
+   - name: Install Nodejs
+     apt: pkg=nodejs
+
+   - name: Create node link
+     command: ln -s /usr/bin/nodejs /usr/bin/node creates=/usr/bin/node
+
+   - name: Install git
+     apt: pkg=git
+
+   - name: Install npm
+     apt: pkg=npm
+
+   - name: Install Redis
+     apt: pkg=redis
+
    - name: Clone repository Checkbox.io
      git: repo=https://github.ncsu.edu/skuber/CSC519_Project.git dest=/home/ubuntu/proxy/

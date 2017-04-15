@@ -7,8 +7,8 @@ var request = require("request");
 
 var CHECKBOX  = 'http://34.209.184.165:80';
 
-var PROD1 = 'http://34.209.201.231:80/';
-var PROD2 = 'http://52.41.64.213:80/';
+var PROD1 = 'http://54.71.230.63:80/';
+var PROD2 = 'http://52.24.24.173:80/';
 // var PROD3 = 'http://34.209.32.244:80/';
 
 var CANARY = 'http://34.209.32.244:80/'; 
@@ -35,20 +35,22 @@ var infrastructure =
     var proxy   = httpProxy.createProxyServer(options);
     var server  = http.createServer(function(req, res)
     { 
-         if (requestNum % 3 != 0){
-            client.rpoplpush("prodservers","prodservers",function(err, value){
-               console.log("\nProxy server sending request to port " + value );
-               TARGET = value;
-               proxy.web(req, res, { target: TARGET });
-            });
-         }else {
-            client.rpoplpush("canaryservers","canaryservers",function(err, value){
-               console.log("\nCanary server sending request to port " + value );
-               TARGET = value;
-               proxy.web(req, res, { target: TARGET });
-            });
-         }
-         requestNum++;
+         client.get("canary", function(err,value){ 
+            if(value && requestNum % 3 == 0 ){
+               client.rpoplpush("canaryservers","canaryservers",function(err, value){
+                  console.log("\nCanary server sending request to port " + value );
+                  TARGET = value;
+                  proxy.web(req, res, { target: TARGET });
+               });
+            }else{
+               client.rpoplpush("prodservers","prodservers",function(err, value){
+                  console.log("\nProxy server sending request to port " + value );
+                  TARGET = value;
+                  proxy.web(req, res, { target: TARGET });
+               });
+            }
+            requestNum++;
+         });
     });
     server.listen(8080);
 
