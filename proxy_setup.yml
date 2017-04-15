@@ -8,23 +8,32 @@
    
    - name: Update
      raw: apt-get update
+   
+   - name: Update
+     raw: apt-get upgrade -y
 
   tasks:
    
-   - name: Install Nodejs
-     apt: pkg=nodejs
-
-   - name: Create node link
-     command: ln -s /usr/bin/nodejs /usr/bin/node creates=/usr/bin/node
-
-   - name: Install git
-     apt: pkg=git
-
-   - name: Install npm
-     apt: pkg=npm
+   # - name: Install Nodejs
+   #   apt: pkg=nodejs
+   #
+   # - name: Create node link
+   #   command: ln -s /usr/bin/nodejs /usr/bin/node creates=/usr/bin/node
+   #
+   # - name: Install git
+   #   apt: pkg=git
+   #
+   # - name: Install npm
+   #   apt: pkg=npm
 
    - name: Install Redis
-     apt: pkg=redis
+     raw: sudo apt-get -y install redis-server
+
+   - name: Install Redis
+     raw: sudo service redis-server status
+
+   - name: Install redis tools
+     raw: sudo apt-get install redis-tools
 
    - name: Clone repository Checkbox.io
-     git: repo=https://github.ncsu.edu/skuber/CSC519_Project.git dest=/home/ubuntu/proxy/
+     git: repo=https://github.ncsu.edu/skuber/CSC519_Project.git dest=/home/ubuntu/proxy/ version=MileStone3
