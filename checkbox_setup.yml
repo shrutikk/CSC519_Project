@@ -1,4 +1,4 @@
-- hosts: Checkbox
+- hosts: production
   sudo: yes
   gather_facts: false
 
@@ -57,3 +57,6 @@
 
    - name: Restart nginx
      raw: sudo service nginx restart
+   
+   - name: Install Redis
+     raw: sudo apt-get -y install redis-server
